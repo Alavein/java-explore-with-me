@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.ViewStatsDto;
 import ru.yandex.practicum.exceptions.BadRequestException;
-import ru.yandex.practicum.mappers.statsMapper;
+import ru.yandex.practicum.mappers.StatsMapper;
 import ru.yandex.practicum.repository.StatsRepository;
 
 import java.time.LocalDateTime;
@@ -25,7 +25,7 @@ public class StatsServiceImpl implements StatsService {
     @Transactional
     public void createHit(EndpointHitDto endpointHitDto) {
         log.info("POST");
-        statsRepository.save(statsMapper.toStats(endpointHitDto));
+        statsRepository.save(StatsMapper.toStats(endpointHitDto));
     }
 
     @Override

@@ -6,7 +6,7 @@ import ru.yandex.practicum.model.Stats;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class statsMapper {
+public class StatsMapper {
 
     public static Stats toStats(EndpointHitDto endpointHitDto) {
         return Stats.builder()
