@@ -62,7 +62,7 @@
         </dependency>
 
         <dependency>
-            <groupId>ru.yandex.practicum</groupId>
+            <groupId>ru.practicum</groupId>
             <artifactId>client</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>test</scope>
