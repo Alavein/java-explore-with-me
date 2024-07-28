@@ -2,7 +2,7 @@ version: '3.8'
 services:
   stats:
     build:
-      context: ./stats/service
+      context: ./stats/stats-service
       dockerfile: ./Dockerfile
     container_name: stats-container
     ports:
@@ -13,6 +13,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
+
   stats-db:
     image: postgres:14-alpine
     container_name: stats-db-container
