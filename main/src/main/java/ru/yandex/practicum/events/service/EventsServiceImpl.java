@@ -380,7 +380,7 @@ public class EventsServiceImpl implements EventsService {
         Root<Event> root = query.from(Event.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(builder.equal(root.get("eventState"), PUBLISHED));
+        predicates.add(builder.equal(root.get("state"), PUBLISHED));
 
         if (getUserEvent.getText() != null && !getUserEvent.getText().isEmpty()) {
             String searchText = "%" + getUserEvent.getText().toUpperCase() + "%";
@@ -424,7 +424,7 @@ public class EventsServiceImpl implements EventsService {
         }
 
         if (getAdminEvent.getStates() != null && !getAdminEvent.getStates().isEmpty()) {
-            predicates.add(root.get("eventState").in(getAdminEvent.getStates()));
+            predicates.add(root.get("state").in(getAdminEvent.getStates()));
         }
 
         if (getAdminEvent.getCategories() != null && !getAdminEvent.getCategories().isEmpty()) {
