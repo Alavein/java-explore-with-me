@@ -1,6 +1,7 @@
 package ru.yandex.practicum.events.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;

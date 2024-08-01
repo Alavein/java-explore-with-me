@@ -12,7 +12,6 @@ import ru.yandex.practicum.categories.service.CategoriesServiceImpl;
 import ru.yandex.practicum.events.dto.*;
 import ru.yandex.practicum.events.mapper.EventMapper;
 import ru.yandex.practicum.events.model.Event;
-//import ru.yandex.practicum.events.model.QEvent;
 import ru.yandex.practicum.events.repository.EventsRepository;
 import ru.yandex.practicum.events.status.EventStatus;
 import ru.yandex.practicum.events.status.SortStatus;
@@ -30,6 +29,7 @@ import ru.yandex.practicum.users.service.UserServiceImpl;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
+import ru.yandex.practicum.events.model.QEvent;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,8 +43,9 @@ public class EventsServiceImpl implements EventsService {
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
     private final StatsServiceImpl statsService;
+    private static final QEvent qEvent = QEvent.event;
 
-/*    private static final QEvent qEvent = QEvent.event;*/
+
 
     @Override
     public List<EventShortDto> getEventsOfUser(Integer userId, Integer from, Integer size) {
@@ -184,6 +185,7 @@ public class EventsServiceImpl implements EventsService {
 
         return eventFullDto;
     }
+
 
     @Override
     public List<EventFullDto> getEventsAdmin(List<Integer> users, List<EventStatus> states, List<Integer> categories,
@@ -357,7 +359,7 @@ public class EventsServiceImpl implements EventsService {
         return setViewsAndConfirmedRequestsToEventFullDto(event);
     }
 
-/*    @Override
+    @Override
     public Event getEvent(Integer eventId) {
 
         return eventsRepository.findById(eventId)
@@ -397,9 +399,9 @@ public class EventsServiceImpl implements EventsService {
                 .stream()
                 .reduce(BooleanExpression::and)
                 .get();
-    }*/
+    }
 
-/*    public static BooleanExpression makeAdminEventQueryFilters(GetAdminEvent getAdminEvent) {
+    public static BooleanExpression makeAdminEventQueryFilters(GetAdminEvent getAdminEvent) {
         List<BooleanExpression> conditions = new ArrayList<>();
 
         if (getAdminEvent.getCategories() != null) {
@@ -425,7 +427,7 @@ public class EventsServiceImpl implements EventsService {
                 .stream()
                 .reduce(BooleanExpression::and)
                 .get();
-    }*/
+    }
 
     private Map<Integer, Integer> getConfirmedRequests(List<Event> events) {
         Map<Integer, Integer> confirmedRequests = new HashMap<>();
@@ -488,4 +490,5 @@ public class EventsServiceImpl implements EventsService {
 
         return eventFull;
     }
+
 }

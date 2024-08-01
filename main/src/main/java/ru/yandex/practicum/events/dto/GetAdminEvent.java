@@ -1,13 +1,12 @@
 package ru.yandex.practicum.events.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.events.status.EventStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-/*@Getter
-@Setter*/
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetAdminEvent {
