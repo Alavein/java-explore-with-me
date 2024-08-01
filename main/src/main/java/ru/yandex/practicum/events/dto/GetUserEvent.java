@@ -2,6 +2,7 @@ package ru.yandex.practicum.events.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.events.status.SortStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,6 +16,10 @@ public class GetUserEvent {
     private Boolean paid;
     private LocalDateTime rangeStart;
     private LocalDateTime rangeEnd;
+    private Boolean onlyAvailable;
+    private SortStatus sort;
+    private Integer from;
+    private Integer size;
 
     public String getText() {
         return text;
@@ -54,5 +59,37 @@ public class GetUserEvent {
 
     public void setRangeEnd(LocalDateTime rangeEnd) {
         this.rangeEnd = rangeEnd;
+    }
+
+    public Boolean getOnlyAvailable() {
+        return onlyAvailable;
+    }
+
+    public void setOnlyAvailable(Boolean onlyAvailable) {
+        this.onlyAvailable = onlyAvailable;
+    }
+
+    public SortStatus getSort() {
+        return sort;
+    }
+
+    public void setSort(SortStatus sort) {
+        this.sort = sort;
+    }
+
+    public Integer getFrom() {
+        return from;
+    }
+
+    public void setFrom(Integer from) {
+        this.from = from;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
     }
 }

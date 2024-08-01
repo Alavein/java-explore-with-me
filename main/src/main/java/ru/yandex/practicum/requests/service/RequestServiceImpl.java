@@ -60,7 +60,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException("Ошибка. Нельзя создать запрос на неопубликованное мероприя.");
         }
 
-        if (requestRepository.findByEventAndRequesterId(eventId, userId).isPresent()) {
+        if (requestRepository.findByEventIdAndRequesterId(eventId, userId).isPresent()) {
             throw new ConflictException("Ошибка. Запрос уже существует.");
         }
 

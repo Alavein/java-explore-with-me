@@ -21,6 +21,10 @@ public class GetAdminEvent {
 
     private LocalDateTime rangeEnd;
 
+    private Integer from;
+
+    private Integer size;
+
     public List<Integer> getUsers() {
         return users;
     }
@@ -59,5 +63,21 @@ public class GetAdminEvent {
 
     public void setRangeEnd(LocalDateTime rangeEnd) {
         this.rangeEnd = rangeEnd;
+    }
+
+    public Integer getFrom() {
+        return from;
+    }
+
+    public void setFrom(Integer from) {
+        this.from = from;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
     }
 }

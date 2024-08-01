@@ -1,6 +1,5 @@
 package ru.yandex.practicum.events.service;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -9,7 +8,13 @@ import ru.yandex.practicum.ViewStatsDto;
 import ru.yandex.practicum.categories.mapper.CategoryMapper;
 import ru.yandex.practicum.categories.model.Category;
 import ru.yandex.practicum.categories.service.CategoriesServiceImpl;
-import ru.yandex.practicum.events.dto.*;
+import ru.yandex.practicum.events.dto.EventFullDto;
+import ru.yandex.practicum.events.dto.EventShortDto;
+import ru.yandex.practicum.events.dto.GetAdminEvent;
+import ru.yandex.practicum.events.dto.GetUserEvent;
+import ru.yandex.practicum.events.dto.NewEventDto;
+import ru.yandex.practicum.events.dto.UpdateEventAdminRequest;
+import ru.yandex.practicum.events.dto.UpdateEventUserRequest;
 import ru.yandex.practicum.events.mapper.EventMapper;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.events.repository.EventsRepository;
@@ -26,11 +31,21 @@ import ru.yandex.practicum.requests.repository.RequestRepository;
 import ru.yandex.practicum.users.model.User;
 import ru.yandex.practicum.users.service.UserServiceImpl;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.*;
-import ru.yandex.practicum.events.model.QEvent;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.events.status.EventStatus.PUBLISHED;
 
 @Service
 @RequiredArgsConstructor
@@ -43,9 +58,7 @@ public class EventsServiceImpl implements EventsService {
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
     private final StatsServiceImpl statsService;
-    private static final QEvent qEvent = QEvent.event;
-
-
+    private final EntityManager entityManager;
 
     @Override
     public List<EventShortDto> getEventsOfUser(Integer userId, Integer from, Integer size) {
@@ -191,12 +204,8 @@ public class EventsServiceImpl implements EventsService {
     public List<EventFullDto> getEventsAdmin(List<Integer> users, List<EventStatus> states, List<Integer> categories,
                                              LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from,
                                              Integer size) {
-        GetAdminEvent getAdminEvent = new GetAdminEvent(users, states, categories, rangeStart, rangeEnd);
-        BooleanExpression conditions = makeAdminEventQueryFilters(getAdminEvent);
-
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-
-        List<Event> events = eventsRepository.findAll(conditions, page).toList();
+        GetAdminEvent getAdminEvent = new GetAdminEvent(users, states, categories, rangeStart, rangeEnd, from, size);
+        List<Event> events = makeAdminEvent(getAdminEvent);
 
         if (events.isEmpty()) {
             return List.of();
@@ -300,14 +309,13 @@ public class EventsServiceImpl implements EventsService {
             throw new BadRequestException("Ошибка. Дата окончания не может быть раньше даты его начала.");
         }
 
-        GetUserEvent getUserEvent = new GetUserEvent(text, categories, paid, rangeStart, rangeEnd);
-        BooleanExpression conditions = makeUserEventQueryFilters(getUserEvent);
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        GetUserEvent getUserEvent = new GetUserEvent(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort,
+                from, size);
+        List<Event> events = makeUserEvent(getUserEvent);
 
         statsService.createHit(request);
 
-        List<Event> events = eventsRepository.findAll(conditions, page)
-                .stream()
+        events = events.stream()
                 .filter(event -> event.getPublishedOn() != null)
                 .collect(Collectors.toList());
 
@@ -315,11 +323,11 @@ public class EventsServiceImpl implements EventsService {
             return List.of();
         }
 
-        List<EventShortDto> eventsShortDto = new ArrayList<>();
+        List<EventShortDto> eventsShortDto;
         Map<Integer, Integer> confirmedRequests = getConfirmedRequests(events);
         Map<Integer, Long> views = getViews(events);
 
-        if (onlyAvailable) {
+        if (getUserEvent.getOnlyAvailable()) {
             eventsShortDto = events
                     .stream()
                     .filter(event -> (event.getParticipantLimit() == 0 ||
@@ -366,67 +374,73 @@ public class EventsServiceImpl implements EventsService {
                 .orElseThrow(() -> new DataNotFoundException("Ошибка. Событие не найдено."));
     }
 
-    public static BooleanExpression makeUserEventQueryFilters(GetUserEvent getUserEvent) {
-        List<BooleanExpression> conditions = new ArrayList<>();
+    public List<Event> makeUserEvent(GetUserEvent getUserEvent) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Event> query = builder.createQuery(Event.class);
+        Root<Event> root = query.from(Event.class);
 
-        if (getUserEvent.getText() != null) {
-            String textToSearch = getUserEvent.getText();
-            conditions.add(qEvent.title.containsIgnoreCase(textToSearch)
-                    .or(qEvent.annotation.containsIgnoreCase(textToSearch))
-                    .or(qEvent.description.containsIgnoreCase(textToSearch)));
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(root.get("eventState"), PUBLISHED));
+
+        if (getUserEvent.getText() != null && !getUserEvent.getText().isEmpty()) {
+            String searchText = "%" + getUserEvent.getText().toUpperCase() + "%";
+            List<Predicate> orPredicates = new ArrayList<>();
+
+            orPredicates.add(builder.like(builder.upper(root.get("annotation")), searchText));
+            orPredicates.add(builder.like(builder.upper(root.get("description")), searchText));
+            predicates.add(builder.or(orPredicates.toArray(new Predicate[0])));
         }
 
-        if (getUserEvent.getCategories() != null) {
-            conditions.add(qEvent.category.id.in(getUserEvent.getCategories()));
+        if (getUserEvent.getCategories() != null && !getUserEvent.getCategories().isEmpty()) {
+            predicates.add(root.get("category").in(getUserEvent.getCategories()));
         }
 
         if (getUserEvent.getPaid() != null) {
-            conditions.add(qEvent.paid.eq(getUserEvent.getPaid()));
+            predicates.add(builder.equal(root.get("paid"), getUserEvent.getPaid()));
         }
 
-        LocalDateTime rangeStart = getUserEvent.getRangeStart() != null ? getUserEvent.getRangeStart() : LocalDateTime.now();
-        conditions.add(qEvent.eventDate.goe(rangeStart));
-
-        if (getUserEvent.getRangeEnd() != null) {
-            conditions.add(
-                    qEvent.eventDate.loe(getUserEvent.getRangeEnd())
-            );
+        if (getUserEvent.getRangeStart() != null && getUserEvent.getRangeEnd() != null) {
+            predicates.add(builder.between(root.get("eventDate"), getUserEvent.getRangeStart(), getUserEvent.getRangeEnd()));
         }
 
-        conditions.add(qEvent.state.eq(EventStatus.PUBLISHED));
+        query.where(predicates.toArray(new Predicate[0]));
 
-        return conditions
-                .stream()
-                .reduce(BooleanExpression::and)
-                .get();
+        return entityManager.createQuery(query)
+                .setFirstResult(getUserEvent.getFrom())
+                .setMaxResults(getUserEvent.getSize())
+                .getResultList();
     }
 
-    public static BooleanExpression makeAdminEventQueryFilters(GetAdminEvent getAdminEvent) {
-        List<BooleanExpression> conditions = new ArrayList<>();
 
-        if (getAdminEvent.getCategories() != null) {
-            conditions.add(qEvent.category.id.in(getAdminEvent.getCategories()));
+    public List<Event> makeAdminEvent(GetAdminEvent getAdminEvent) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Event> query = builder.createQuery(Event.class);
+        Root<Event> root = query.from(Event.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (getAdminEvent.getUsers() != null && !getAdminEvent.getUsers().isEmpty()) {
+            predicates.add(root.get("initiator").in(getAdminEvent.getUsers()));
         }
 
-        if (getAdminEvent.getStates() != null) {
-            conditions.add(qEvent.state.in(getAdminEvent.getStates()));
+        if (getAdminEvent.getStates() != null && !getAdminEvent.getStates().isEmpty()) {
+            predicates.add(root.get("eventState").in(getAdminEvent.getStates()));
         }
 
-        if (getAdminEvent.getUsers() != null) {
-            conditions.add(qEvent.initiator.id.in(getAdminEvent.getUsers()));
+        if (getAdminEvent.getCategories() != null && !getAdminEvent.getCategories().isEmpty()) {
+            predicates.add(root.get("category").in(getAdminEvent.getCategories()));
         }
-        LocalDateTime rangeStart = getAdminEvent.getRangeStart() != null ? getAdminEvent.getRangeStart() : LocalDateTime.now();
-        conditions.add(qEvent.eventDate.goe(rangeStart));
 
-        if (getAdminEvent.getRangeEnd() != null) {
-            conditions.add(
-                    qEvent.eventDate.loe(getAdminEvent.getRangeEnd())
-            );
+        if (getAdminEvent.getRangeStart() != null && getAdminEvent.getRangeEnd() != null) {
+            predicates.add(builder.between(root.get("eventDate"), getAdminEvent.getRangeStart(), getAdminEvent.getRangeEnd()));
         }
-        return conditions
-                .stream()
-                .reduce(BooleanExpression::and)
-                .get();
+
+        query.where(predicates.toArray(new Predicate[0]));
+
+        return entityManager.createQuery(query)
+                .setFirstResult(getAdminEvent.getFrom())
+                .setMaxResults(getAdminEvent.getSize())
+                .getResultList();
     }
 
     private Map<Integer, Integer> getConfirmedRequests(List<Event> events) {
