@@ -25,7 +25,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto createUser(@Valid @RequestBody NewUserRequest newUserRequest) {
         log.info("Создание пользователя {}", newUserRequest);
-        return userService.addUser(newUserRequest);
+        return userService.createUser(newUserRequest);
     }
 
     @GetMapping

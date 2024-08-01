@@ -4,7 +4,6 @@ import ru.yandex.practicum.events.dto.*;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.events.status.SortStatus;
 import ru.yandex.practicum.events.status.EventStatus;
-import ru.yandex.practicum.events.model.dto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;

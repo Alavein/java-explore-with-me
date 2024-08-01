@@ -21,7 +21,7 @@ public class PrivateRequestController {
     public ParticipationRequestDto createEventRequest(@PathVariable Integer userId,
                                                    @RequestParam Integer eventId) {
         log.info("Создание запроса по userId = {} и eventId = {}", userId, eventId);
-        return requestService.addEventRequest(userId, eventId);
+        return requestService.createEventRequest(userId, eventId);
     }
 
 
