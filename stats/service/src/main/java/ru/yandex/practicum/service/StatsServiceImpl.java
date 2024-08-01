@@ -48,6 +48,10 @@ public class StatsServiceImpl implements StatsService {
     }
 
     private void checkTime(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            throw new BadRequestException("Ошибка. Дата введена неверно. Необходимо указать дату начала и окончания");
+        }
+
         if (end.isBefore(start) || end.equals(start)) {
             log.warn("GET");
             throw new BadRequestException("Ошибка. Дата введена неверно. Дата начала не может быть позже даты " +
@@ -55,3 +59,4 @@ public class StatsServiceImpl implements StatsService {
         }
     }
 }
+
