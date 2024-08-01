@@ -49,7 +49,7 @@ public class StatsClient extends BaseClient {
                 "start", start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 "end", end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 "uris", uris != null ? String.join(",", uris) : "",
-                "unique", unique != null ? unique :"");
+                "unique", unique != null ? unique : "");
         return get("/stats" + path, parameters);
     }
 }
