@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface RequestRepository extends JpaRepository<Request, Integer> {
 
-    @Query("SELECT new ru.practicum.events.model.dto.ConfirmedRequests(r.event.id, count(r.id)) " +
+    @Query("SELECT new ru.yandex.practicum.events.model.dto.ConfirmedRequests(r.event.id, count(r.id)) " +
             "FROM Request AS r " +
             "WHERE r.event.id IN ?1 " +
             "AND r.status = 'CONFIRMED' " +
