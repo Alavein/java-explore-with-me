@@ -32,7 +32,7 @@ public class UserController {
     public List<UserDto> getUsers(@RequestParam(required = false) List<Integer> ids,
                                   @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                   @Positive @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Получение списка пользователей");
+        log.info("Получение списка пользователей.");
         return userService.getUsers(ids, from, size);
     }
 
