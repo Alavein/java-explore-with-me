@@ -1,7 +1,9 @@
 package ru.yandex.practicum.events.model;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import ru.yandex.practicum.categories.model.Category;
 import ru.yandex.practicum.events.status.EventStatus;
 import ru.yandex.practicum.location.model.Location;
@@ -17,44 +19,43 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Integer id;
     @Column(nullable = false)
     @Size(min = 20, max = 2000)
-    String annotation;
+    private String annotation;
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
-    Category category;
+    private Category category;
     @Column(nullable = false)
     @Size(min = 20, max = 7000)
-    String description;
+    private String description;
     @Column(nullable = false)
-    LocalDateTime eventDate;
+    private LocalDateTime eventDate;
     @Column(nullable = false)
-    Boolean paid;
+    private Boolean paid;
     @Column(nullable = false)
-    Integer participantLimit;
+    private Integer participantLimit;
     @ManyToOne
     @JoinColumn(name = "location_id", referencedColumnName = "id")
-    Location location;
+    private Location location;
     @Column(nullable = false)
-    LocalDateTime createdOn;
+    private LocalDateTime createdOn;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    EventStatus state;
-    LocalDateTime publishedOn;
+    private EventStatus state;
+    private LocalDateTime publishedOn;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    User initiator;
+    private User initiator;
     @Column(nullable = false)
-    Boolean requestModeration;
+    private Boolean requestModeration;
     @Column(nullable = false)
     @Size(min = 3, max = 120)
-    String title;
+    private String title;
 
     public Integer getId() {
         return id;
