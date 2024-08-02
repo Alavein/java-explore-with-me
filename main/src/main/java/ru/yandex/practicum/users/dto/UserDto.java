@@ -12,9 +12,9 @@ import java.util.Objects;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
 
-    private String email;
-    private Integer id;
-    private String name;
+    String email;
+    Integer id;
+    String name;
 
     @Override
     public boolean equals(Object o) {

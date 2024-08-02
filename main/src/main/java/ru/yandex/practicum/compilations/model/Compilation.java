@@ -19,20 +19,20 @@ public class Compilation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    Integer id;
 
     @Column(nullable = false, unique = true)
     @Size(max = 50)
-    private String title;
+    String title;
 
     @Column(nullable = false)
-    private Boolean pinned;
+    Boolean pinned;
 
     @ManyToMany
     @JoinTable(name = "compilations_events",
             joinColumns = @JoinColumn(name = "compilation_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "event_id", referencedColumnName = "id"))
-    private List<Event> events;
+    List<Event> events;
 
     public Integer getId() {
         return id;

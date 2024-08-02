@@ -19,18 +19,18 @@ import java.time.LocalDateTime;
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    Integer id;
     @ManyToOne
     @JoinColumn(name = "event_id", referencedColumnName = "id")
-    private Event event;
+    Event event;
     @ManyToOne
     @JoinColumn(name = "requester_id", referencedColumnName = "id")
-    private User requester;
+    User requester;
     @Column(nullable = false)
-    private LocalDateTime created;
+    LocalDateTime created;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private RequestStatus status;
+    RequestStatus status;
 
     public Integer getId() {
         return id;
