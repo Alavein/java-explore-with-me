@@ -1,9 +1,7 @@
 package ru.yandex.practicum.compilations.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -12,10 +10,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateCompilationRequest {
 
     @Size(min = 1, max = 50)
-    private String title;
-    private Boolean pinned;
-    private List<Integer> events;
+    String title;
+    Boolean pinned;
+    List<Integer> events;
 }

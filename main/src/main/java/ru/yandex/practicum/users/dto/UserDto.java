@@ -1,9 +1,7 @@
 package ru.yandex.practicum.users.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.Objects;
 
@@ -11,11 +9,12 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
 
-    private String email;
-    private Integer id;
-    private String name;
+    String email;
+    Integer id;
+    String name;
 
     @Override
     public boolean equals(Object o) {

@@ -1,9 +1,7 @@
 package ru.yandex.practicum.requests.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.events.model.Event;
 import ru.yandex.practicum.requests.model.status.RequestStatus;
 import ru.yandex.practicum.users.model.User;
@@ -17,21 +15,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    Integer id;
     @ManyToOne
     @JoinColumn(name = "event_id", referencedColumnName = "id")
-    private Event event;
+    Event event;
     @ManyToOne
     @JoinColumn(name = "requester_id", referencedColumnName = "id")
-    private User requester;
+    User requester;
     @Column(nullable = false)
-    private LocalDateTime created;
+    LocalDateTime created;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private RequestStatus status;
+    RequestStatus status;
 
     public Integer getId() {
         return id;
