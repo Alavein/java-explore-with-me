@@ -1,3 +1,3 @@
 # java-explore-with-me
 Template repository for ExploreWithMe project.
-![image](https://github.com/user-attachments/assets/8fd99b60-45a9-44ac-80ee-af1d896f51c1)
+https://github.com/Alavein/java-explore-with-me/pull/3#issue-2447226663
